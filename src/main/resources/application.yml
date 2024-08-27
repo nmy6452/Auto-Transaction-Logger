@@ -24,6 +24,6 @@ logging:
     root: DEBUG
 
 auto-tren-loger:
-  is-console-log: true
-  is-database-log: true
-  log-level: DEBUG
+  isConsoleLog: true
+  isDatabaseLog: true
+  logLevel: DEBUG

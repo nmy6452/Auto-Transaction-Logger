@@ -1,8 +1,11 @@
 package com.nmy.autologging.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nmy.autologging.component.transactionREQ;
+import com.nmy.autologging.component.Transaction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -35,6 +38,10 @@ public class TransactionLoggingFilter extends OncePerRequestFilter {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+//    private ObjectProvider<Transaction> transactionProvider;
+    private Transaction transaction;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //1. 캐싱
@@ -46,18 +53,26 @@ public class TransactionLoggingFilter extends OncePerRequestFilter {
 
         //3. 캐싱된 값 파싱
         //req
+        transactionREQ tranRequest = new transactionREQ();
         Map<String, String> requestHeader = getRequestHeader(requestWrapper);
         Map<String, String> requestForm = getRequestForm(requestWrapper);
         String requestBody = IOUtils.toString(requestWrapper.getInputStream(), StandardCharsets.UTF_8);
+
+        tranRequest.setHost(request.getRemoteHost());
+        tranRequest.setMethod(request.getMethod());
+        tranRequest.setPath(request.getServletPath());
+        tranRequest.setQuery(request.getQueryString());
+        tranRequest.setForm(requestForm);
+        tranRequest.setRequestBody(requestBody);
+        tranRequest.setHeader(requestHeader);
+        transaction.setRequest(tranRequest);
+
         //reS
         Map<String, String> responseHeader = getRequestHeader(requestWrapper);
         String responseBody = getResponseBody(responseWrapper);
 
-        log.debug("requestHeader::: {}", requestHeader);
-        log.debug("requestForm::: {}", requestForm);
-        log.debug("requestBody::: {}", requestBody);
-        log.debug("responseHeader::: {}", responseHeader);
-        log.debug("responseBody::: {}", responseBody);
+
+        transaction.consoleLog();
 
 
         //4. 캐싱된 값 콘솔 로깅
