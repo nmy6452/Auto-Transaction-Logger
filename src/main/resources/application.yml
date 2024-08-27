@@ -22,3 +22,8 @@ h2:
 logging:
   level:
     root: DEBUG
+
+auto-tren-loger:
+  is-console-log: true
+  is-database-log: true
+  log-level: DEBUG
