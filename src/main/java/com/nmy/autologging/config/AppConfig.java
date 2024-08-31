@@ -10,10 +10,9 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "auto-tren-loger")
+@ConfigurationProperties(prefix = "auto-tran-logger")
 public class AppConfig {
-    boolean isConsoleLog;
-    boolean isDatabaseLog;
-    String logLevel;
+    boolean logConsole;
+    boolean logDb;
 
 }

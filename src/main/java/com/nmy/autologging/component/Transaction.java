@@ -31,10 +31,12 @@ public class Transaction{
 
     public void consoleLog(){
         request.consoleLog();
-//        response.consoleLog();
+        response.consoleLog();
     }
 
     public void dbLog(){
+//        request.dbLog();
+        response.dbLog();
         //TODO DB로깅이 켜져있는 경우 로깅 설정
     }
 }

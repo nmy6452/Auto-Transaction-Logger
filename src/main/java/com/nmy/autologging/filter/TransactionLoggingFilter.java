@@ -3,7 +3,10 @@ package com.nmy.autologging.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nmy.autologging.component.transactionREQ;
 import com.nmy.autologging.component.Transaction;
+import com.nmy.autologging.component.transactionRES;
+import com.nmy.autologging.config.AppConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,9 @@ public class TransactionLoggingFilter extends OncePerRequestFilter {
 //    private TrxLoggingService trxLoggingService;
 
     @Autowired
+    private AppConfig config;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -44,6 +50,10 @@ public class TransactionLoggingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        String uuid = UUID.randomUUID().toString();
+        MDC.put("uuid", uuid);
+
         //1. 캐싱
         ContentCachingRequestWrapper  requestWrapper = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper  responseWrapper = new ContentCachingResponseWrapper(response);
@@ -68,11 +78,23 @@ public class TransactionLoggingFilter extends OncePerRequestFilter {
         transaction.setRequest(tranRequest);
 
         //reS
+        transactionRES tranResponse = new transactionRES();
         Map<String, String> responseHeader = getRequestHeader(requestWrapper);
         String responseBody = getResponseBody(responseWrapper);
 
+        tranResponse.setResponseBody(responseBody);
+        tranResponse.setHeader(responseHeader);
+        transaction.setResponse(tranResponse);
 
-        transaction.consoleLog();
+
+        if (config.isLogConsole()){
+            transaction.consoleLog();
+        }
+        if (config.isLogDb()){
+            transaction.dbLog();
+        }
+
+        MDC.clear();
 
 
         //4. 캐싱된 값 콘솔 로깅
@@ -120,6 +142,12 @@ public class TransactionLoggingFilter extends OncePerRequestFilter {
         return headerMap;
     }
 
+    /**
+     * response 에 담긴 Body 데이터 추출
+     *
+     * @param response
+     * @return
+     */
     private String getResponseBody(final HttpServletResponse response) throws IOException {
         String payload = null;
         ContentCachingResponseWrapper wrapper =

@@ -23,7 +23,6 @@ logging:
   level:
     root: DEBUG
 
-auto-tren-loger:
-  isConsoleLog: true
-  isDatabaseLog: true
-  logLevel: DEBUG
+auto-tran-logger:
+  logConsole: true
+  logDb: true

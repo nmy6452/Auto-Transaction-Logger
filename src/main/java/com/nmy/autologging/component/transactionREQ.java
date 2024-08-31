@@ -29,8 +29,8 @@ public class transactionREQ {
             log.debug("Request path: {}", path);
             log.debug("Request query: {}", query);
             log.debug("Request method: {}", method);
-            log.debug("Request form: {}", form.toString());
-            log.debug("Request header: {}", header.toString());
+            log.debug("Request form: {}", form);
+            log.debug("Request header: {}", header);
             log.debug("Request requestBody: {}", requestBody);
         }
     }
